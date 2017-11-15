@@ -8,6 +8,7 @@ from wheels import NeoPixelStrip
 #from kalman import KalmanFilter
 import RPi.GPIO as GPIO
 import math
+from neopixel import *
 
 #config
 dirA = "/home/pi/DirectoryA/"	# directory for headphone media
@@ -23,7 +24,7 @@ random_delay = 20		# seconds of delay between speaker sounds +/- delay_range
 delay_range = 10
 random_sound = 10		# seconds to play a speaker sound +/- play_range 
 play_range = 5
-scooter_color = Color(255, 0, 0)
+scooter_color = Color(0, 255, 0)
 
 start_limit = 1			# lower limit for detecting acceleration in m^2/s
 stop_limit = 1			# lower limit for detecting deceleration in m^2/s
@@ -72,8 +73,6 @@ speaker.play()
 
 # create wheel LEDs object and start its thread
 wheels = NeoPixelStrip(number_of_wheels, leds_per_wheel, scooter_color)
-wheels.start()
-start_time = time.time()
 last_update = time.time()
 
 # create accelerometer and get initial values
@@ -92,17 +91,17 @@ random_play = random.randint(random_sound - 5, random_sound + 5)
 while True:
 
 	velocity = reed_switch.get_velocity()
-	if (time.time() - last_update) > .1:
-		wheels.update_speed(1/(100*velocity)) #time between pixel update
-		print(velocity)
-		last_update = time.time()
 
-	if (time.time()-start_time) > 60 :
-		wheels.cancel()
-		exit()
-	
+	wheels.run()	
+
 	if playingA:
+		if (time.time() - last_update) > .1:
+			print(velocity)
+			wheels.update_speed(1/(100*velocity))
+			last_update = time.time()
+
 		if velocity < stop_limit:
+			wheels.update_speed(.5)
                         wheels.update_mode(0)
 			headphones.pause()
 			playingA = False 

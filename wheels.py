@@ -26,10 +26,10 @@ LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 LED_STRIP      = ws.WS2811_STRIP_GRB   # Strip type and colour ordering
 
 
-class NeoPixelStrip(Thread): 
+class NeoPixelStrip(object): 
 
 	def __init__(self, number_of_rings, leds_per_ring, color):	
-		super(NeoPixelStrip, self).__init__()
+		#super(NeoPixelStrip, self).__init__()
 		self.strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_STRIP)
 		self.strip.begin()
 		self.wheel = [ NeoPixelRing(i, leds_per_ring) for i in range(number_of_rings) ]		
@@ -37,7 +37,7 @@ class NeoPixelStrip(Thread):
 		self.color_flip = True
 		self.current_led = 0 
 		self.previousUpdate = time.time()
-		self.delay = .01
+		self.delay = .5
                 self.mode = 0
 		self.cancelled = False
 
@@ -58,32 +58,25 @@ class NeoPixelStrip(Thread):
 				self.color_flip = True
 				self.current_led = 0
 
-        def blinky_lights(self)
+        def blinky_lights(self):
 		if self.color_flip:   
 			for i in range(4):
 				self.wheel[i].colorSolid(self.strip, self.color)  # Green blink 
-			self.current_led += 1
-			if self.current_led > 24:
-				self.color_flip = False
-				self.current_led = 0
+			self.color_flip = False
 			       
 		else: 
 			for i in range(4):
 			      self.wheel[i].colorSolid(self.strip, Color(255, 255, 255))  # White blink 
-			self.current_led +=1
-			if self.current_led > 24:
-				self.color_flip = True
-				self.current_led = 0
+			self.color_flip = True
 
 
 	def run(self):
-		while not self.cancelled:
-		        if(time.time() - self.previousUpdate) > self.delay:
-                            self.previousUpdate = time.time()
-                            if self.mode == 0:
-                                    self.blinky_lights() 
-                            if self.mode == 1:
-				    self.spinning_lights() 
+		if(time.time() - self.previousUpdate) > self.delay:
+			self.previousUpdate = time.time()
+			if self.mode == 0:
+				self.blinky_lights() 
+			elif self.mode == 1:
+				self.spinning_lights() 
 			    
 
 	def cancel(self):
@@ -113,10 +106,9 @@ class NeoPixelRing(object):
 
 	def colorSolid(self, strip, color):
 		"""Wipe color across display a pixel at a time."""
-		for self.currentLED in range(self.startLED, self.stopLED):
-			strip.setPixelColor(self.currentLED, color)
-			strip.show()
-		self.currentLED = self.startLED 
+		for led in range(self.startLED, self.stopLED):
+			strip.setPixelColor(led, color)
+		strip.show()
 
 	def theaterChase(self, strip, color, wait_ms=50, iterations=10):
 		"""Movie theater light style chaser animation."""
@@ -133,7 +125,7 @@ class NeoPixelRing(object):
 # Main program logic follows:
 if __name__ == '__main__':
 
-	wheels = NeoPixelStrip(4, 24)
+	wheels = NeoPixelStrip(4, 24, Color(0, 255, 0))
 	wheels.start()
 	start_time = time.time()
 
@@ -141,7 +133,8 @@ if __name__ == '__main__':
 	while True:
 		print("...threading...")	
 		if (time.time() - start_time) > 10 :	
-			wheels.update(.0001)
+			wheels.update_mode(1)
+			wheels.update_speed(.0001)
 		if (time.time() - start_time) > 20 :	
 			wheels.cancel()
 			exit()

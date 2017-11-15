@@ -23,6 +23,7 @@ random_delay = 20		# seconds of delay between speaker sounds +/- delay_range
 delay_range = 10
 random_sound = 10		# seconds to play a speaker sound +/- play_range 
 play_range = 5
+scooter_color = Color(255, 0, 0)
 
 start_limit = 1			# lower limit for detecting acceleration in m^2/s
 stop_limit = 1			# lower limit for detecting deceleration in m^2/s
@@ -69,7 +70,8 @@ speaker = create_player(outputB, playlistB)
 #speaker.audio_set_volume(volumeB)
 speaker.play()
 
-wheels = NeoPixelStrip(number_of_wheels, leds_per_wheel)
+# create wheel LEDs object and start its thread
+wheels = NeoPixelStrip(number_of_wheels, leds_per_wheel, scooter_color)
 wheels.start()
 start_time = time.time()
 last_update = time.time()
@@ -91,7 +93,7 @@ while True:
 
 	velocity = reed_switch.get_velocity()
 	if (time.time() - last_update) > .1:
-		wheels.update(1/(100*velocity)) #time between pixel update
+		wheels.update_speed(1/(100*velocity)) #time between pixel update
 		print(velocity)
 		last_update = time.time()
 
@@ -101,10 +103,12 @@ while True:
 	
 	if playingA:
 		if velocity < stop_limit:
+                        wheels.update_mode(0)
 			headphones.pause()
 			playingA = False 
 	else:	
 		if velocity > start_limit:
+                        wheels.update_mode(1)
 			headphones.play()
 			playingA = True 
 

@@ -126,17 +126,16 @@ class NeoPixelRing(object):
 if __name__ == '__main__':
 
 	wheels = NeoPixelStrip(4, 24, Color(0, 255, 0))
-	wheels.start()
 	start_time = time.time()
 
 	print ('Press Ctrl-C to quit.')
 	while True:
-		print("...threading...")	
-		if (time.time() - start_time) > 10 :	
-			wheels.update_mode(1)
-			wheels.update_speed(.0001)
-		if (time.time() - start_time) > 20 :	
-			wheels.cancel()
-			exit()
+		wheels.run()
+		#if (time.time() - start_time) > 10 :	
+		#	wheels.update_mode(1)
+		#	wheels.update_speed(.0001)
+		#if (time.time() - start_time) > 20 :	
+		#	wheels.cancel()
+		#	exit()
 
-		time.sleep(1)
+		#time.sleep(1)

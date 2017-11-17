@@ -2,6 +2,15 @@
 
 an interactive scooter attachment  
 
+### Hardware:  
+
+* Raspberry Pi 3
+* 4 x NeoPixel 24 LED Ring
+* Magnetically-operated reed switch
+* PIR sensor
+
+### Software:
+`
 To run on Raspberry Pi 3, connect the neccessary hardware and install raspbian-jessie lite. Then follow these instructions,  
 
 ```

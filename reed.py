@@ -39,7 +39,7 @@ class ReedSwitch(object):
 
 if __name__ == "__main__":
 
-	pin = 17
+	pin = 22 
 	radius_of_tire_in_m = .3429 # = 13.5in
 
 	reed_switch = ReedSwitch(pin, radius_of_tire_in_m)

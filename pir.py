@@ -13,7 +13,7 @@ class PirSensor(object):
 
 if __name__ == "__main__":
 	import time
-	pir = PirSensor(23)
+	pir = PirSensor(17)
 	time.sleep(2) # allow sensor to stablize 
 	try:
 		while True:

@@ -5,6 +5,8 @@ an interactive scooter attachment
 ### Hardware:  
 
 * Raspberry Pi 3
+* Bluetooth Headphones
+* USB speaker
 * 4 x NeoPixel 24 LED Ring
 * Magnetically-operated reed switch
 * PIR sensor
@@ -16,7 +18,7 @@ To run on Raspberry Pi 3, connect the neccessary hardware and install raspbian-j
 ```
 sudo apt update  
 sudo apt install git-core python-pip python-smbus scons vlc  
-pip install python-vlc
+pip install -r requirements.txt 
 ```
 
 If using NeoPixels via PWM(the default), add the line `blacklist snd_bcm2835` to /etc/modprobe.d/snd-blacklist.conf amd continue with the following steps,

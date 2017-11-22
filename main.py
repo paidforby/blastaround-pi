@@ -5,8 +5,8 @@ import vlc
 from reed import ReedSwitch
 from wheels import NeoPixelStrip
 from pir import PirSensor
-#from mpu6050 import mpu6050
-#from kalman import KalmanFilter
+from blue import *
+from media import *
 import RPi.GPIO as GPIO
 import math
 from neopixel import *
@@ -14,14 +14,11 @@ from neopixel import *
 #config
 DIR_A = "/home/pi/DirectoryA/"	# directory for headphone media
 DIR_B = "/home/pi/DirectoryB/"	# directory for speaker media
-OUTPUT_A = "hw:0,0"		# "hw:1,0" corresponds to "cat proc/asound/cards"
-OUTPUT_B = "hw:1,0"
-
-playingA = False		# initial state of headphone media
+OUTPUT_A = "1"			# pacmd list-sinks
+OUTPUT_B = "hw:1,0"		# "hw:1,0" corresponds to "cat proc/asound/cards"
+				
+playingA = True			# initial state of headphone media
 playingB = False		# initial state of speaker media 
-
-#volumeA = 80
-#volumeB = 30
 
 randomness = .2			# percent chance that speakers are playing media
 random_delay = 20		# seconds of delay between speaker sounds +/- delay_range	
@@ -37,28 +34,11 @@ NUMBER_OF_WHEELS = 4
 LEDS_PER_WHEEL = 24
 SCOOTER_COLOR = Color(0, 255, 0)
 
-RADIUS_OF_WHEEL_IN_M =.3429 
+RADIUS_OF_WHEEL_IN_M =.1016 
 REED_PIN = 17
 PIR_PIN = 23
 
-def create_player(output, playlist):
-
-	interface=vlc.Instance('--aout=alsa', '--alsa-audio-device=' + output)
-
-	#add song
-	#media = interface.media_new(playlistA)
-	#player=interface.media_player_new()
-	#player.set_media(mediaA)
-	
-	#add playlist
-	mediaList = interface.media_list_new()
-	for music in playlist:
-	    mediaList.add_media(interface.media_new(music))
-	player = interface.media_list_player_new()
-	player.set_media_list(mediaList)
-	player.set_playback_mode(vlc.PlaybackMode.loop)
-
-	return player
+blueteeth()
 
 # get playlist from directory
 playlistA = [DIR_A + i for i in os.listdir(DIR_A)]
@@ -66,14 +46,14 @@ playlistA = [DIR_A + i for i in os.listdir(DIR_A)]
 playlistB = [DIR_B + i for i in os.listdir(DIR_B)]
 
 # create headphones and speaker outputs, 
-headphones = create_player(OUTPUT_A, playlistA)
+headphones = create_player("pulse", OUTPUT_A, playlistA)
 
 if playingA:
 	headphones.play()
 else:
 	headphones.pause()
 
-speaker = create_player(OUTPUT_B, playlistB)
+speaker = create_player("alsa", OUTPUT_B, playlistB)
 speaker.pause()
 
 # create wheel LEDs object and start its thread
@@ -87,12 +67,6 @@ reed_switch = ReedSwitch(REED_PIN, RADIUS_OF_WHEEL_IN_M)
 pir = PirSensor(PIR_PIN)
 prevTime = time.time()
 random_play = random.randint(random_sound - 5, random_sound + 5)
-
-#sensor = mpu6050(0x68)
-#data = sensor.get_accel_data()
-
-# kalman filter for smoothing data
-# replace kalman filter with complementary filter per http://www.pieter-jan.com/node/11
 
 
 while True:

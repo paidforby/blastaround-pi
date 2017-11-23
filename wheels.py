@@ -28,13 +28,14 @@ LED_STRIP      = ws.WS2811_STRIP_GRB   # Strip type and colour ordering
 
 class NeoPixelStrip(object): 
 
-	def __init__(self, number_of_rings, leds_per_ring, color):	
+	def __init__(self, number_of_rings, leds_per_ring, scooter_color):	
 		#super(NeoPixelStrip, self).__init__()
 		self.strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_STRIP)
 		self.strip.begin()
 		self.wheel = [ NeoPixelRing(i, leds_per_ring) for i in range(number_of_rings) ]		
-                self.color1 = color
-                self.color2 = Color(255, 255, 255)
+                self.scooter_color = scooter_color
+                self.base_color = Color(255, 255, 255)
+                self.rideover_color = Color(255, 0, 0)
 		self.color_flip = True
 		self.current_led = 0 
 		self.previousUpdate = time.time()
@@ -42,10 +43,10 @@ class NeoPixelStrip(object):
                 self.mode = 0
 		self.cancelled = False
 
-	def spinning_lights(self):
+	def spinning_lights(self, spin_color):
 		if self.color_flip:   
 			for i in range(4):
-				self.wheel[i].colorWipe(self.strip, self.color1)  # Green wipe
+				self.wheel[i].colorWipe(self.strip, spin_color)  # Green wipe
 			self.current_led += 1
 			if self.current_led > 24:
 				self.color_flip = False
@@ -53,21 +54,21 @@ class NeoPixelStrip(object):
 			       
 		else: 
 			for i in range(4):
-			      self.wheel[i].colorWipe(self.strip, self.color2)  # white wipe
+			      self.wheel[i].colorWipe(self.strip, self.base_color)  # white wipe
 			self.current_led +=1
 			if self.current_led > 24:
 				self.color_flip = True
 				self.current_led = 0
 
-        def blinky_lights(self):
+        def blinky_lights(self, blink_color):
 		if self.color_flip:   
 			for i in range(4):
-				self.wheel[i].colorSolid(self.strip, self.color1)  # Green blink 
+				self.wheel[i].colorSolid(self.strip, blink_color)  # Green blink 
 			self.color_flip = False
 			       
 		else: 
 			for i in range(4):
-			      self.wheel[i].colorSolid(self.strip, self.color2)  # White blink 
+			      self.wheel[i].colorSolid(self.strip, self.base_color)  # White blink 
 			self.color_flip = True
 
 
@@ -75,9 +76,11 @@ class NeoPixelStrip(object):
 		if(time.time() - self.previousUpdate) > self.delay:
 			self.previousUpdate = time.time()
 			if self.mode == 0:
-				self.blinky_lights() 
+				self.blinky_lights(self.scooter_color) 
 			elif self.mode == 1:
-				self.spinning_lights() 
+				self.spinning_lights(self.scooter_color) 
+			elif self.mode == 2:
+				self.blinky_lights(self.rideover_color) 
 
 	def cancel(self):
 		self.cancelled = True

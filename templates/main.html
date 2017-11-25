@@ -4,9 +4,9 @@
 </head>
 
 <body>
-	<h1>Device Listing and Status</h1>
+	<h1>Blastaround Scooter Status</h1>
 
-	<p>The scooter currently is in mode {{ modes[current_mode].name }}
+	<p>The scooter is currently in mode: {{ modes[current_mode].name }}
 	{% for mode in modes %}
 		{% if mode != current_mode %} 
 			<li>

@@ -5,11 +5,9 @@ from wheels import NeoPixelStrip
 from neopixel import *
 from multiprocessing import Process, Value, Pool, Manager
 
-R = 0 
-G = 255
-B = 0
-SCOOTER_COLOR = Color(0, 255, 0)
 app = Flask(__name__)
+manager = Manager()
+current_mode = manager.Value('i', 0) 
 
 # Create a dictionary of possible modes:
 modes = { 
@@ -50,16 +48,13 @@ def start_lights(state):
 			wheels.update_speed(.3)
 
 def start_server(state):
-	current_mode = state
 	app.run(debug=True, use_reloader=False, host='0.0.0.0')
 
 
 if __name__ == '__main__':
-	manager = Manager()
+	SCOOTER_COLOR = Color(0, 255, 0)
 	wheels = NeoPixelStrip(4, 24, SCOOTER_COLOR)
 	start_time = time.time()
-
-	current_mode = manager.Value('i', 0) 
 
 	script = Process(target=start_lights, args=(current_mode,))
 	script.start()  

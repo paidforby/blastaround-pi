@@ -31,9 +31,8 @@ class ReedSwitch(object):
 		self.switch = True
 		self.update_velocity()	
 
-			
 	def get_velocity(self):
-		if (time.time() - self.time_of_last_pass) > 5:
+		if (time.time() - self.time_of_last_pass) > 3:
 			self.velocity = .001
 		return self.velocity
 

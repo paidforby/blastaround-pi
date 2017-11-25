@@ -16,11 +16,18 @@ from multiprocessing import Process, Value, Pool, Manager
 def start_script(state):
 
 	#config
-	DIR_A = "/home/pi/DirectoryA/"	# directory for headphone media
-	DIR_B = "/home/pi/DirectoryB/"	# directory for speaker media
-	OUTPUT_A = "1"			# pacmd list-sinks
+	DIR_STANDBY = "/home/pi/media/STANDBY/"	# directory for speaker media
+	DIR_RIDING_HEADPHONES = "/home/pi/media/RIDING_HEADPHONES/"	# directory for speaker media
+	DIR_RIDING_SPEAKER = "/home/pi/media/RIDING_SPEAKER/"	# directory for speaker media
+	DIR_RIDE_OVER_HEADPHONES = "/home/pi/media/RIDE_OVER_HEADPHONES/"	# directory for speaker media
+	DIR_RIDE_OVER_SPEAKER = "/home/pi/media/RIDE_OVER_SPEAKER/"	# directory for speaker media
+	REPEAT_OVER = 15
+
+	OUTPUT_A = "hw:1,0"			# pacmd list-sinks
 	OUTPUT_B = "hw:0,0"		# "hw:1,0" corresponds to "cat proc/asound/cards"
-					
+
+	VOLUME_HEADPHONES = 90
+	VOLUME_SPEAKER = 50
 
 	NUMBER_OF_WHEELS = 4
 	LEDS_PER_WHEEL = 24
@@ -32,17 +39,18 @@ def start_script(state):
 
 	PIR_PIN = 17 
 
-	blueteeth()
+	#blueteeth()
 
-	playlistA = [DIR_A + i for i in os.listdir(DIR_A)]
+	playlist_standby = [DIR_STANDBY + i for i in os.listdir(DIR_STANDBY)]
+	playlist_riding_headphones = [DIR_RIDING_HEADPHONES + i for i in os.listdir(DIR_RIDING_HEADPHONES)]
+	print playlist_riding_headphones
+	playlist_riding_speaker = [DIR_RIDING_SPEAKER + i for i in os.listdir(DIR_RIDING_SPEAKER)]
+	playlist_ride_over_headphones = [DIR_RIDE_OVER_HEADPHONES + i for i in os.listdir(DIR_RIDE_OVER_HEADPHONES)]
+	playlist_ride_over_speaker = [DIR_RIDE_OVER_SPEAKER + i for i in os.listdir(DIR_RIDE_OVER_SPEAKER)]
 
-	playlistB = [DIR_B + i for i in os.listdir(DIR_B)]
+	headphones = MediaPlayer("alsa", "playlist", OUTPUT_A, VOLUME_HEADPHONES)
 
-	headphones = MediaPlayer("pulse", OUTPUT_A, playlistA)
-	headphones.pause()
-
-	speaker = MediaPlayer("alsa", OUTPUT_B, playlistB)
-	speaker.pause()
+	speaker = MediaPlayer("alsa", "song", OUTPUT_B, VOLUME_SPEAKER)
 
 	wheels = NeoPixelStrip(NUMBER_OF_WHEELS, LEDS_PER_WHEEL, SCOOTER_COLOR)
 
@@ -51,10 +59,12 @@ def start_script(state):
 	last_update = time.time()
 
 	pir = PirSensor(PIR_PIN)
-	prev_detect = time.time()
 
 	start_time = time.time()
+	last_play = time.time()
+	moving = False
 	current_state = None
+	headphones.load(playlist_riding_headphones[0])
 
 	while True:
 
@@ -70,57 +80,60 @@ def start_script(state):
 				wheels.update_mode(state.value)
 				wheels.update_speed(.5)
 				current_state = state.value
-			if pir.triggered: 
-				speaker.play_next()
+			if pir.triggered:
+				speaker.play_random(playlist_standby)
 				pir.triggered = False
 			
 
 		# STATE 1: RIDING
                 elif state.value == 1:
 
-			if (time.time() - start_time) > 270:
-				state.value = 2
-
 			if current_state != state.value:
-				wheels.update_mode(state.value)
-				wheels.update_speed(.001)
 				start_time = time.time()
-				headphones.play()
+				moving = False
 				current_state = state.value
-
-			elif headphones.playing == True:
-				wheels.update_speed(1/(100*velocity))
+		
+			if moving:
+				# SPINNING WHEELS
+				wheels.update_speed(1/(50*velocity))
 				if velocity < SPEED_LIMIT:
 					wheels.update_speed(.5)
 					wheels.update_mode(0)
 					headphones.pause()
-
-			elif headphones.playing == False:	
+					moving = False
+			
+			else:	# NOT moving
+				# BLINKING WHEELS
 				if velocity > SPEED_LIMIT:
+					wheels.update_speed(.001)
 					wheels.update_mode(1)
 					headphones.play()
+					moving = True 
 
+			if pir.triggered:
+				speaker.play_random(playlist_riding_speaker)
+				pir.triggered = False
+
+			if (time.time() - start_time) > 270:
+				# AFTER 4.5 mins
+				state.value = 2
+				
 
 		# STATE 2: RIDE_OVER
                 elif state.value == 2:
-                	wheels.update_mode(state.value)
-                        wheels.update_speed(.3)
+			if current_state != state.value:
+				wheels.update_mode(state.value)
+				wheels.update_speed(.3)
+				current_state = state.value
+
+			if time.time()-last_play > REPEAT_OVER: 
+				speaker.load(playlist_ride_over_speaker[0])
+				speaker.play()
+				headphones.load(playlist_ride_over_headphones[0])
+				headphones.play()
+				last_play = time.time()
 
 		
-		#if playingB:
-		#	if (time.time()-prevTime) > random_play:
-		#		print("pause speaker")
-		#		speaker.pause()
-		#		playingB = False 
-		#		prevTime = time.time()
-		#else:	
-		#	if pir.triggered: 
-		#		print("play speaker")
-		#		speaker.play()
-		#		playingB = True 
-		#		pir.triggered = False
-
-
 # beginning of time, start script and flask processes
 script = Process(target=start_script, args=(current_mode,))
 script.start()

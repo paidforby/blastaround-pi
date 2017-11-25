@@ -26,7 +26,7 @@ def waiting():
         print("Bluetooth DOWN")
         print(status)
         subprocess.call('./autopair.sh', shell=True)
-        time.sleep(15)
+        time.sleep(10)
         status = subprocess.call('ls /dev/input/event0 2>/dev/null', shell=True)
     else:
         blueteeth() 

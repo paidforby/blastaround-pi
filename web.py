@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template
 import time
 import datetime
@@ -19,6 +20,7 @@ modes = {
 @app.route('/')
 def main():
 	templateData = {
+		'hostname' : os.uname()[1],
 		'current_mode' : current_mode.value,	
 		'modes' : modes
 	}
@@ -30,6 +32,7 @@ def main():
 def action(changeToMode):
 	current_mode.value = int(changeToMode)
 	templateData = {
+		'hostname' : os.uname()[1],
 		'current_mode': current_mode.value,
 		'modes' : modes
 	}

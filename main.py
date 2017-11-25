@@ -43,7 +43,6 @@ def start_script(state):
 
 	playlist_standby = [DIR_STANDBY + i for i in os.listdir(DIR_STANDBY)]
 	playlist_riding_headphones = [DIR_RIDING_HEADPHONES + i for i in os.listdir(DIR_RIDING_HEADPHONES)]
-	print playlist_riding_headphones
 	playlist_riding_speaker = [DIR_RIDING_SPEAKER + i for i in os.listdir(DIR_RIDING_SPEAKER)]
 	playlist_ride_over_headphones = [DIR_RIDE_OVER_HEADPHONES + i for i in os.listdir(DIR_RIDE_OVER_HEADPHONES)]
 	playlist_ride_over_speaker = [DIR_RIDE_OVER_SPEAKER + i for i in os.listdir(DIR_RIDE_OVER_SPEAKER)]
@@ -70,9 +69,9 @@ def start_script(state):
 
 		wheels.run()	
 		velocity = reed_switch.get_velocity()
-		if (time.time() - last_update) > .2:
-			print velocity
-			last_update = time.time()
+		#if (time.time() - last_update) > .2:
+		#	print velocity
+		#	last_update = time.time()
 		
 		# STATE 0: STANDBY
                 if state.value == 0:

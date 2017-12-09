@@ -16,7 +16,7 @@ class ReedSwitch(object):
 		self.velocity = .00001
 
 		GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-		GPIO.add_event_detect(pin, GPIO.RISING, callback=self.sensed, bouncetime = 100)
+		GPIO.add_event_detect(pin, GPIO.RISING, callback=self.sensed, bouncetime = 30)
 		# bouncetime should not be higher than top speed
 
 	def update_velocity(self):

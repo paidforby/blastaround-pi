@@ -14,7 +14,7 @@ from neopixel import *
 
 # LED strip configuration:
 LED_RING_COUNT  = 24      # Number of LED pixels.
-LED_BRIGHTNESS = 16     # Set to 0 for darkest and 255 for brightest
+LED_BRIGHTNESS = 32     # Set to 0 for darkest and 255 for brightest
 
 LED_COUNT      = 4*LED_RING_COUNT
 LED_PIN        = 18      # GPIO pin connected to the pixels (18 uses PWM!).
@@ -34,7 +34,7 @@ class NeoPixelStrip(object):
 		self.strip.begin()
 		self.wheel = [ NeoPixelRing(i, leds_per_ring) for i in range(number_of_rings) ]		
                 self.scooter_color = scooter_color
-                self.base_color = Color(255, 255, 255)
+                self.base_color = Color(196, 196, 196)
                 self.rideover_color = Color(255, 0, 0)
 		self.color_flip = True
 		self.current_led = 0 
@@ -46,7 +46,11 @@ class NeoPixelStrip(object):
 	def spinning_lights(self, spin_color):
 		if self.color_flip:   
 			for i in range(4):
-				self.wheel[i].colorWipe(self.strip, spin_color)  # Green wipe
+				if i == 0 or i ==3:
+					self.wheel[i].colorWipe(self.strip, spin_color, 1)  # Green wipe
+				if i == 1 or i ==2:
+					self.wheel[i].colorWipe(self.strip, spin_color, 0)  # Green wipe
+
 			self.current_led += 1
 			if self.current_led > 24:
 				self.color_flip = False
@@ -54,10 +58,14 @@ class NeoPixelStrip(object):
 			       
 		else: 
 			for i in range(4):
-			      self.wheel[i].colorWipe(self.strip, self.base_color)  # white wipe
-			self.current_led +=1
+				if i == 0 or i ==3:
+					self.wheel[i].colorWipe(self.strip, self.base_color, 1)  # Green wipe
+				if i == 1 or i ==2:
+					self.wheel[i].colorWipe(self.strip, self.base_color, 0)  # Green wipe
+
+			self.current_led += 1
 			if self.current_led > 24:
-				self.color_flip = True
+				self.color_flip = True 
 				self.current_led = 0
 
         def blinky_lights(self, blink_color):
@@ -99,17 +107,23 @@ class NeoPixelRing(object):
 	def __init__(self, ring_number, led_count):
 		self.startLED = ring_number*led_count 
 		self.stopLED = self.startLED+led_count
-		self.currentLED = self.startLED 
+		self.currentLED = self.startLED
 
 	# Define functions which animate LEDs in various ways.
-	def colorWipe(self, strip, color):
+	def colorWipe(self, strip, color, reverse):
 		"""Wipe color across display a pixel at a time."""
 		if self.currentLED in range(self.startLED, self.stopLED):
 			strip.setPixelColor(self.currentLED, color)
 			strip.show()
-			self.currentLED += 1
+			if reverse == 0:
+				self.currentLED += 1
+			elif reverse == 1:
+				self.currentLED -= 1
 		else: 
-			self.currentLED = self.startLED 
+			if reverse == 0:
+				self.currentLED = self.startLED 
+			elif reverse == 1:
+				self.currentLED = self.stopLED-1
 
 	def colorSolid(self, strip, color):
 		"""Wipe color across display a pixel at a time."""
@@ -138,11 +152,10 @@ if __name__ == '__main__':
 	print ('Press Ctrl-C to quit.')
 	while True:
 		wheels.run()
-		#if (time.time() - start_time) > 10 :	
-		#	wheels.update_mode(1)
-		#	wheels.update_speed(.0001)
-		#if (time.time() - start_time) > 20 :	
-		#	wheels.cancel()
-		#	exit()
+		if (time.time() - start_time) > 5 :	
+			wheels.update_mode(1)
+			wheels.update_speed(.0001)
+		if (time.time() - start_time) > 20 :	
+			wheels.cancel()
+			exit()
 
-		#time.sleep(1)

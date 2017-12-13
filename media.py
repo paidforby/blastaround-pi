@@ -78,7 +78,7 @@ if __name__ == "__main__":
 	headphones = MediaPlayer("alsa", "song", OUTPUT, 80)
 	headphones.load(playlist[0])
 	headphones.play()
-	speaker = MediaPlayer("alsa", playlist, OUTPUTB, 40)
+	speaker = MediaPlayer("alsa", "playlist", OUTPUTB, 40)
 	speaker.load_playlist(playlistB)
 	speaker.play()
 	

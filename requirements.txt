@@ -3,3 +3,4 @@ RPi.GPIO==0.6.3
 python-vlc==2.2.6100
 rpi-ws281x==1.0.0
 smbus==1.1
+pygame==1.9.2a0

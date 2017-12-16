@@ -9,8 +9,8 @@ def checkifComplete(channel):
 
 if __name__ == "__main__":
 
-    music_file1 = "media/rainforest.wav"
-    music_file2 = "media/headphones.wav"
+    music_file1 = "/home/pi/media/RIDING_HEADPHONES/rainforest.wav"
+    music_file2 = "/home/pi/media/RIDING_HEADPHONES/christmas.wav"
 
     #set up the mixer
     freq = 44100     # audio CD quality
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     #checkifComplete(channel2)
 
     DIR = "media/STANDBY/" # directory for headphone media
-    OUTPUTB = "hw:1,0"      # "hw:1,0" corresponds to "cat proc/asound/cards"
+    OUTPUTB = "hw:0,0"      # "hw:1,0" corresponds to "cat proc/asound/cards"
     playlist = [DIR + i for i in os.listdir(DIR)]
     
     headphones = MediaPlayer("alsa", "song", OUTPUTB, 80)

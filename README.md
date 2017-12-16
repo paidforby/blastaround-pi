@@ -12,12 +12,13 @@ an interactive scooter attachment
 * PIR sensor
 
 ### Software:
-`
-To run on Raspberry Pi 3, connect the neccessary hardware and install raspbian-jessie lite. Then follow these instructions,  
+A pre-built image will be available at [blastaround-pi/releases](github.com/paidforby/blastaround-pi/release)  
+
+To build from source on a Raspberry Pi 3, connect the neccessary hardware and install raspbian-jessie lite. Then follow these instructions,  
 
 ```
 sudo apt update  
-sudo apt install git-core python-pip python-smbus scons vlc  
+sudo apt install git-core python-pip python-smbus python-pygame scons vlc  
 pip install -r requirements.txt 
 ```
 
